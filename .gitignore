@@ -10,7 +10,18 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
-# n8n
+# Git internals (should never be committed)
+.git/
+
+# n8n runtime data (Docker bind mounts)
+n8n_data/
+redis_data/
+backups/
+
+# Local working files (inputs/outputs for workflows)
+files/
+
+# n8n (if using local install / monorepo)
 .n8n/
 packages/*/dist/
 packages/*/build/
@@ -33,3 +44,21 @@ Thumbs.db
 # Misc
 coverage/
 .nyc_output
+
+# Backup copies (editors / manual)
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+
+# Binary/temporary artifacts
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.bin
+*.rdb
+
+# Large workflow execution artifacts (if they ever escape n8n_data/)
+**/binary_data/

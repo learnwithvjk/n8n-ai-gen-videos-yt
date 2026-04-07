@@ -1,0 +1,5 @@
+FROM alpine:3.20
+RUN apk add --no-cache sqlite redis
+COPY scripts/backup-n8n.sh scripts/backup-loop.sh /scripts/
+RUN chmod +x /scripts/backup-n8n.sh /scripts/backup-loop.sh
+CMD ["/scripts/backup-loop.sh"]

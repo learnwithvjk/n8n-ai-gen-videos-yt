@@ -1,7 +1,8 @@
+name: n8n-ai-studio
+
 services:
   n8n:
     build: .
-    user: root
     container_name: n8n-ai-studio
     restart: unless-stopped
     ports:
@@ -12,9 +13,10 @@ services:
       - N8N_REDIS_HOST=redis
       - N8N_REDIS_PASSWORD=${REDIS_PASSWORD}
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
       # This allows n8n to use these keys in workflows if needed
-      - SARVAM_API_KEY=${SARVAM_API_KEY} 
-      - GOOGLE_STUDIO_API_KEY=${GOOGLE_STUDIO_API_KEY} 
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - GOOGLE_STUDIO_API_KEY=${GOOGLE_STUDIO_API_KEY}
       - SCRIPTING_MODAL=${SCRIPTING_MODAL}
     volumes:
       - ./n8n_data:/home/node/.n8n
@@ -35,3 +37,25 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    container_name: n8n-backup
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - BACKUP_INTERVAL=${BACKUP_INTERVAL:-300}
+      - BACKUP_RETENTION=${BACKUP_RETENTION:-30}
+      - BACKUP_ROOT=/backups
+      - N8N_DIR=/data/n8n
+      - REDIS_DIR=/data/redis
+      - REDIS_HOST=redis
+    volumes:
+      - ./n8n_data:/data/n8n:ro
+      - ./redis_data:/data/redis:ro
+      - ./backups:/backups
